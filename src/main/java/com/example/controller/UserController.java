@@ -6,12 +6,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.annotations.SnakeCase;
 import com.example.annotations.TrackTime;
-import com.example.service.MailerService;
+import com.example.annotations.UpperCase;
 import com.example.service.UserService;
 
 @RestController
-public class UsuarioController {
+public class UserController {
 
 	@Autowired
 	private UserService userService;
@@ -20,6 +21,14 @@ public class UsuarioController {
 	@GetMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
 	public String helloWorld() {
 		return "Hello World";
+	}
+
+	@UpperCase
+	@SnakeCase
+	@TrackTime
+	@GetMapping(value = "/string", produces = MediaType.APPLICATION_JSON_VALUE)
+	public String toUpperCase(@RequestParam String name) {
+		return "Hello World " + name;
 	}
 
 	@TrackTime
@@ -38,7 +47,4 @@ public class UsuarioController {
 				"Adios amigo adios gracias por ver el tuto", true, null);
 		return "Good bye  World";
 	}
-
-	// http://localhost:8080/users/mail?to=trabajos.daniel2018@gmail.com&from=trabajos.daniel2018@gmail.com&subject=saludo&text=Hola%20que%20pasa
-
 }

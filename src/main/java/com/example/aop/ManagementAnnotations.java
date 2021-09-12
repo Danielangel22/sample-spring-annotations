@@ -1,7 +1,9 @@
 package com.example.aop;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -13,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
 import com.example.service.MailerService;
-
 
 @Aspect
 @Configuration
@@ -48,6 +49,45 @@ public class ManagementAnnotations {
 		Object result = joinPoint.proceed();
 		long timeTaken = System.currentTimeMillis() - startTime;
 		log.info("Time Taken by {} is {} miliseconds", joinPoint.getSignature().getName(), timeTaken);
+		return result;
+	}
+
+	@Around(value = "@annotation(com.example.annotations.UpperCase)")
+	public Object upperCase(ProceedingJoinPoint joinPoint) throws Throwable {
+		log.info("incoming data  [{}] ", joinPoint.getArgs());
+		var args = Arrays.asList(joinPoint.getArgs()).stream().map(e -> {
+			var str = (String) e;
+			return str.toUpperCase();
+		}).collect(Collectors.toList());
+		Object result = joinPoint.proceed(args.toArray());
+		log.info("returning data  [{}] ", result);
+		return result;
+	}
+
+	@Around(value = "@annotation(com.example.annotations.SnakeCase)")
+	public Object lowercase(ProceedingJoinPoint joinPoint) throws Throwable {
+		log.info("incoming data  [{}] ", joinPoint.getArgs());
+		var args = Arrays.asList(joinPoint.getArgs()).stream().map(e -> {
+			String result = "";
+			String str = (String) e;
+			if (str != null && !str.isEmpty()) {
+				// String str = (String) e;
+				char c = str.charAt(0);
+				result = result + Character.toLowerCase(c);
+				for (int i = 1; i < str.length(); i++) {
+					char ch = str.charAt(i);
+					if (Character.isUpperCase(ch)) {
+						result = result + '_';
+						result = result + Character.toLowerCase(ch);
+					} else {
+						result = result + ch;
+					}
+				}
+			}
+			return result;
+		}).collect(Collectors.toList());
+		Object result = joinPoint.proceed(args.toArray());
+		log.info("returning data  [{}] ", result);
 		return result;
 	}
 }
